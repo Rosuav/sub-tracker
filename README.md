@@ -8,6 +8,7 @@ TODO:
 
 * Receive uploads of CSV files of historical subscriber data
 * Periodically (automatically) check with the API for new subs
+  - https://devcenter.heroku.com/articles/scheduler
   - Daily would be best
   - Allow a manual recheck
 * With previously-uploaded CSV data, there are names but no IDs.

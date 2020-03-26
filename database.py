@@ -83,7 +83,14 @@ def login_user(twitchid, token):
 def bulk_load_subs(twitchid, data):
 	with postgres, postgres.cursor() as cur:
 		for sub in csv.DictReader(io.StringIO(data)):
-			tier = [None, "Tier 1", "Tier 2", "Tier 3"].index(sub["Current Tier"]) # Bomb if anything unexpected
+			if "Plan" in sub:
+				# Old format file
+				sub["Current Tier"] = sub["Plan"]
+				sub["Tenure"] = "0"
+			tier = {
+				"Tier 1": 1, "Tier 2": 2, "Tier 3": 3, # Modern format
+				"$4.99": 1, "$9.99": 2, "$24.99": 3, # Old format
+			}[sub.get("Current Tier", "Tier 1")] # Bomb if anything unexpected
 			cur.execute("""insert into subtracker.subs (channel, userid, tenure, username, created, tier, streak)
 				values (%s, %s, %s, %s, %s, %s, %s) on conflict do nothing""",
 				[twitchid, sub["Username"], sub["Tenure"], sub["Username"], sub["Subscribe Date"], tier, sub["Streak"]])

@@ -1,7 +1,7 @@
 Sub Tracker
 ===========
 
-Source code for https://sub-tracker.herokuapp.example.com/ and also available for
+Source code for https://twitch-sub-tracker.herokuapp.com/ and also available for
 individual deployment as desired.
 
 TODO:

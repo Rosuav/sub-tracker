@@ -14,6 +14,10 @@ const subscribers = {{ subscribers | tojson }};
 </header>
 <main>
 <p>Text will go here. And stuff.</p>
+<p>Filter subscribers: <input id=filter></p>
+<table border id=subs><thead>
+<tr><th>User name</th><th>Tenure</th><th>First subscribed</th></tr>
+</thead><tbody></tbody></table>
 <p><form method=post enctype="multipart/form-data" action="/upload">
 Upload CSV files: <input type=file name=csv multiple>
 <input type=submit></form></p>

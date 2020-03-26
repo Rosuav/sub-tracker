@@ -9,7 +9,7 @@ import sys
 import threading
 import time
 import pytz
-from pprint import pprint
+from pprint import pprint, pformat
 # Hack: Get gevent to do its monkeypatching as early as possible.
 # I have no idea what this is actually doing, but if you let the
 # patching happen automatically, it happens too late, and we get
@@ -55,7 +55,7 @@ if os.environ.get("OVERRIDE_REDIRECT_HTTPS"):
 	_url_for = url_for
 	def url_for(*a, **kw): return _url_for(*a, **kw).replace("http://", "https://")
 
-REQUIRED_SCOPES = "channel_subscriptions" # Ensure that these are sorted
+REQUIRED_SCOPES = "channel:read:subscriptions channel_subscriptions" # Ensure that these are sorted
 
 class TwitchDataError(Exception):
 	def __init__(self, error):
@@ -121,12 +121,16 @@ def query(endpoint, *, token, method="GET", params=None, data=None, auto_refresh
 def mainpage():
 	# NOTE: If we've *reduced* the required scopes, this will still force a re-login.
 	# However, it'll be an easy login, as Twitch will recognize the existing auth.
-	if "twitch_token" not in session or "twitch_user" not in session or session.get("twitch_auth_scopes") != REQUIRED_SCOPES:
+	if "twitch_token" not in session or session.get("twitch_auth_scopes") != REQUIRED_SCOPES:
 		return render_template("login.html")
 	user = session["twitch_user"]
-	channelid = user["_id"]
-	database.ensure_user(channelid)
 	return render_template("index.html", username=user["display_name"])
+
+@app.route("/logout")
+def logout():
+	session.pop("twitch_token", None)
+	session.pop("twitch_user", None)
+	return redirect(url_for("mainpage"))
 
 @app.route("/login")
 def login():
@@ -165,11 +169,29 @@ def authorized():
 	# and email (though Helix gives us the latter if we add an OAuth scope).
 	user = query("helix/users", token="bearer")["data"][0]
 	user["_id"] = user["id"] # For now, everything looks for _id. Existing logins don't have user["id"].
-	database.ensure_user(user["_id"])
+	database.login_user(user["_id"], session["twitch_token"])
 	session["twitch_user"] = user
 	return redirect(url_for("mainpage"))
 
 # TODO: JSON API endpoints for uploading a CSV, and forcing a recheck
+
+# Hack. TODO: Have a UI to do this
+@app.route("/ping-api")
+def ping_api():
+	id = session["twitch_user"]["_id"]
+	'''
+	params = {"limit": 100, "offset": 0}
+	subs = []
+	while True:
+		data = query("kraken/channels/%s/subscriptions" % id, token="oauth", params=params)
+		if not data["subscriptions"]: break
+		subs.extend(data["subscriptions"])
+		params["offset"] += params["limit"]
+	database.update_subs_from_api(id, subs)
+	'''
+	data = query("helix/subscriptions", token="bearer", params={"broadcaster_id": id})
+	# TODO: Paginate the results
+	return "<pre>" + pformat(data) + "</pre>"
 
 if __name__ == "__main__":
 	import logging

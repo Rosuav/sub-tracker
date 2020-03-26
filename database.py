@@ -82,3 +82,6 @@ def bulk_load_subs(twitchid, data):
 
 def update_subs_from_api(twitchid, data):
 	...
+
+def list_subscribers(twitchid):
+	...

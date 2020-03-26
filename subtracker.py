@@ -124,7 +124,9 @@ def mainpage():
 	if "twitch_token" not in session or session.get("twitch_auth_scopes") != REQUIRED_SCOPES:
 		return render_template("login.html")
 	user = session["twitch_user"]
-	return render_template("index.html", username=user["display_name"])
+	return render_template("index.html",
+		username=user["display_name"], subscribers=database.list_subscribers(user["_id"]),
+	)
 
 @app.route("/logout")
 def logout():
@@ -171,6 +173,14 @@ def authorized():
 	user["_id"] = user["id"] # For now, everything looks for _id. Existing logins don't have user["id"].
 	database.login_user(user["_id"], session["twitch_token"])
 	session["twitch_user"] = user
+	return redirect(url_for("mainpage"))
+
+@app.route("/upload", methods=["POST"])
+def upload_files():
+	twitchid = session["twitch_user"]["_id"]
+	for f in request.files.getlist("csv"):
+		print("Loading", f.filename)
+		database.bulk_load_subs(twitchid, f.read().decode("UTF-8"))
 	return redirect(url_for("mainpage"))
 
 # TODO: JSON API endpoints for uploading a CSV, and forcing a recheck

@@ -93,7 +93,7 @@ def bulk_load_subs(twitchid, data):
 			}[sub.get("Current Tier", "Tier 1")] # Bomb if anything unexpected
 			cur.execute("""insert into subtracker.subs (channel, userid, tenure, username, created, tier, streak)
 				values (%s, %s, %s, %s, %s, %s, %s) on conflict do nothing""",
-				[twitchid, sub["Username"], sub["Tenure"], sub["Username"], sub["Subscribe Date"], tier, sub["Streak"]])
+				[twitchid, sub["Username"], sub["Tenure"], sub["Username"], sub["Subscribe Date"], tier, sub.get("Streak", "0")])
 
 def update_subs_from_api(twitchid, data):
 	"""Don't call this. It doesn't work.

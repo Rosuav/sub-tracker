@@ -7,6 +7,7 @@ ExecStart=/usr/local/bin/gunicorn -k flask_sockets.worker subtracker:app --bind=
 WorkingDirectory=/home/rosuav/sub-tracker
 # If faster shutdown is needed, switch to killing with SIGINT, as SIGTERM will wait for clients.
 # KillSignal=SIGINT
+Environment="OVERRIDE_REDIRECT_URI=https://gideon.rosuav.com/subtracker/login/authorized"
 
 [Install]
 WantedBy=multi-user.target

@@ -8,6 +8,7 @@ WorkingDirectory=/home/rosuav/sub-tracker
 # If faster shutdown is needed, switch to killing with SIGINT, as SIGTERM will wait for clients.
 # KillSignal=SIGINT
 Environment="OVERRIDE_REDIRECT_URI=https://gideon.rosuav.com/subtracker/login/authorized"
+Environment="OVERRIDE_REDIRECT_HTTPS=1"
 
 [Install]
 WantedBy=multi-user.target

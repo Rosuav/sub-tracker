@@ -119,6 +119,8 @@ def query(endpoint, *, token, method="GET", params=None, data=None, auto_refresh
 
 @app.route("/")
 def mainpage():
+	dest = os.environ.get("REDIRECT_TO_OTHER")
+	if dest: return redirect(dest)
 	# NOTE: If we've *reduced* the required scopes, this will still force a re-login.
 	# However, it'll be an easy login, as Twitch will recognize the existing auth.
 	if "twitch_token" not in session or session.get("twitch_auth_scopes") != REQUIRED_SCOPES:

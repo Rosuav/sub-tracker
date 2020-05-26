@@ -159,9 +159,9 @@ def authorized():
 	if "access_token" not in resp:
 		# Something went wrong with the retrieval. No idea what or why,
 		# so I'm doing a cop-out and just dumping to console.
-		print("Unable to log in")
-		pprint(resp)
-		print("Returning generic failure.")
+		print("Unable to log in", file=sys.stderr)
+		pprint(resp, stream=sys.stderr)
+		print("Returning generic failure.", file=sys.stderr)
 		raise Exception
 	session["twitch_token"] = resp["access_token"]
 	session["twitch_refresh_token"] = resp["refresh_token"]

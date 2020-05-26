@@ -1,0 +1,12 @@
+[Unit]
+Description=SubTracker app server
+
+[Service]
+User=www-data
+ExecStart=/usr/local/bin/gunicorn -k flask_sockets.worker subtracker:app --bind=127.0.0.1:1231
+WorkingDirectory=/home/rosuav/sub-tracker
+# If faster shutdown is needed, switch to killing with SIGINT, as SIGTERM will wait for clients.
+# KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
